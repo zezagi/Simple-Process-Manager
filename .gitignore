@@ -1,0 +1,9 @@
+cmake-build-*/
+build/
+bin/
+*.obj
+*.o
+*.exe
+*.dll
+*.xml
+Thumbs.db

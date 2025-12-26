@@ -7,4 +7,7 @@ add_executable(ekwiwalent_cheatEngine main.cpp
         processExplorer_helpers.h
         ProcessExplorer/ProcessExplorer_helpers.cpp
         ProcessExplorer/console_helpers.cpp
-        console_helpers.h)
+        console_helpers.h
+        ProcessExplorer/processExplorer_main.cpp
+        MenuManager/MenuManager.cpp
+        MenuManager/MenuManager.h)

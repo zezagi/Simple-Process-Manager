@@ -6,6 +6,7 @@ using namespace std;
 #define KEY_UP 72
 #define KEY_DOWN 80
 #define KEY_ENTER 13
+#define KEY_BACKSPACE 8
 
 struct ProcessSettings {
     bool pid;
@@ -29,4 +30,5 @@ struct ProcessInfo {
 
 bool ShowAllProcesses(ProcessSettings* settings);
 bool SettingsSaved();
+void HandleProcessExplorer();
 string boolMessage(bool val);

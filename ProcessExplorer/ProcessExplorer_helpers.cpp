@@ -150,8 +150,12 @@ bool ShowAllProcesses(ProcessSettings* settings) {
     }
 
     CloseHandle(snapshot);
-    while (true) {
-
+    cout << "BACKSPACE to back to main menu \n ENTER to explore processes" << endl;
+    int key = _getch();
+    if (key == KEY_ENTER) {
+        return true;
     }
-    return true;
+    else if (key == KEY_BACKSPACE) {
+        return false;
+    }
 }
