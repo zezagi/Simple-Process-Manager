@@ -10,10 +10,13 @@
 #include <sstream>
 #include "../processExplorer_helpers.h"
 #include "../console_helpers.h"
+#include "../MenuManager/MenuManager.h"
 
 #pragma comment(lib, "psapi.lib")
 
 using namespace std;
+
+DWORD SelectedPID = 0;
 
 string GetMemoryUsage(DWORD pid) {
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
@@ -32,6 +35,7 @@ string GetMemoryUsage(DWORD pid) {
     CloseHandle(hProcess);
     return result;
 }
+
 string GetArch(DWORD pid) {
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
     if (!hProcess) return "-";
@@ -45,6 +49,7 @@ string GetArch(DWORD pid) {
     CloseHandle(hProcess);
     return "unk";
 }
+
 string GetProcessPath(DWORD pid) {
     if (pid == 0 || pid == 4) return "SYSTEM";
 
@@ -60,17 +65,16 @@ string GetProcessPath(DWORD pid) {
     return path;
 }
 
-void PrintHeader(ProcessSettings* settings) {
-    SetColor(240);
-    if (settings->pid) cout << left << setw(8) << "PID";
-    if (settings->name) cout << left << setw(30) << "NAME";
-    if (settings->path) cout << left << setw(45) << "PATH";
-    if (settings->memUsage) cout << left << setw(12) << "MEM";
-    if (settings->threads) cout << left << setw(8) << "THRD";
-    if (settings->parentPID) cout << left << setw(10) << "PARENT";
-    if (settings->is64Bit) cout << left << setw(6) << "ARCH";
-    SetColor(7);
-    cout << endl;
+string GetHeaderString(ProcessSettings* settings) {
+    stringstream ss;
+    if (settings->pid) ss << left << setw(8) << "PID";
+    if (settings->name) ss << left << setw(30) << "NAME";
+    if (settings->path) ss << left << setw(45) << "PATH";
+    if (settings->memUsage) ss << left << setw(12) << "MEM";
+    if (settings->threads) ss << left << setw(8) << "THRD";
+    if (settings->parentPID) ss << left << setw(10) << "PARENT";
+    if (settings->is64Bit) ss << left << setw(6) << "ARCH";
+    return ss.str();
 }
 
 string generateProcessString(PROCESSENTRY32* entry, ProcessSettings* settings) {
@@ -113,22 +117,6 @@ string generateProcessString(PROCESSENTRY32* entry, ProcessSettings* settings) {
     return ss.str();
 }
 
-void EnableDebugPrivilege() {
-    HANDLE hToken;
-    LUID luid;
-    TOKEN_PRIVILEGES tkp;
-
-    if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) {
-        if (LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid)) {
-            tkp.PrivilegeCount = 1;
-            tkp.Privileges[0].Luid = luid;
-            tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-            AdjustTokenPrivileges(hToken, FALSE, &tkp, sizeof(tkp), NULL, NULL);
-        }
-        CloseHandle(hToken);
-    }
-}
-
 bool ShowAllProcesses(ProcessSettings* settings) {
     EnableDebugPrivilege();
     PROCESSENTRY32 entry;
@@ -136,26 +124,31 @@ bool ShowAllProcesses(ProcessSettings* settings) {
     if (snapshot == INVALID_HANDLE_VALUE) return false;
     entry.dwSize = sizeof(PROCESSENTRY32);
 
-    system("cls");
-    PrintHeader(settings);
+    string headerTitle = GetHeaderString(settings);
+    MenuManager ProcessListMenu(headerTitle);
+    vector<DWORD> pidMap;
 
     if (Process32First(snapshot, &entry)) {
         do {
-            cout << generateProcessString(&entry, settings) << endl;
+            string procLine = generateProcessString(&entry, settings);
+            ProcessListMenu.AddOption({procLine, nullptr});
+            pidMap.push_back(entry.th32ProcessID);
         } while (Process32Next(snapshot, &entry));
     }
     else {
         CloseHandle(snapshot);
         return false;
     }
-
     CloseHandle(snapshot);
-    cout << "BACKSPACE to back to main menu \n ENTER to explore processes" << endl;
-    int key = _getch();
-    if (key == KEY_ENTER) {
-        return true;
-    }
-    else if (key == KEY_BACKSPACE) {
+
+    ProcessListMenu.AddOption({"[ BACK TO MAIN MENU ]", nullptr});
+
+    int choice = ProcessListMenu.Show();
+
+    if (choice == ProcessListMenu.Options.size()-1) {
         return false;
     }
+
+    SelectedPID = pidMap[choice];
+    return true;
 }

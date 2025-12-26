@@ -11,7 +11,7 @@
 #include "../processExplorer_helpers.h"
 #include "../console_helpers.h"
 
-#define MAX_NAME_LENGTH 50
+#define MENU_HEIGHT 30
 
 using namespace std;
 
@@ -28,21 +28,55 @@ MenuManager::MenuManager(string t) : Title(t), selectedOption(0) {}
         int MenuManager::Show() {
             ShowConsoleCursor(false);
             system("cls");
+            const int CONSOLE_WIDTH = 200;
             while (true) {
                 gotoxy(0,0);
                 SetColor(7);
-                cout << Title << endl;
-                for (int i=0; i<Options.size(); i++) {
-                    if (selectedOption == i) SetColor(240);
-                    if (Options[i].ControlledValue==nullptr)
-                    { cout << left << setw(MAX_NAME_LENGTH) << Options[i].Name << endl; SetColor(7); continue;}
 
-                    cout << left << setw(MAX_NAME_LENGTH)
-                    << Options[i].Name
-                    << boolMessage(*Options[i].ControlledValue)
-                    << endl;
+                cout << Title << endl;
+                cout << string(CONSOLE_WIDTH, '-') << endl;
+
+                int startVal = 0;
+                int endVal = Options.size();
+
+                if (Options.size() > MENU_HEIGHT) {
+                    startVal = selectedOption - (MENU_HEIGHT / 2);
+                    if (startVal < 0) startVal = 0;
+                    endVal = startVal + MENU_HEIGHT;
+
+                    if (endVal>Options.size()) {
+                        endVal = Options.size();
+                        startVal = endVal - MENU_HEIGHT;
+                    }
+                }
+
+                for (int i = startVal; i < endVal; i++) {
+                    if (selectedOption == i) SetColor(240);
+                    else SetColor(7);
+                    string lineToPrint;
+                    if (Options[i].ControlledValue==nullptr) lineToPrint = Options[i].Name;
+                    else {
+                        string namePart = Options[i].Name;
+                        if (namePart.length() > 35) namePart = namePart.substr(0, 35); // Limit nazwy w ustawieniach
+                        string padding(40 - namePart.length(), ' ');
+                        lineToPrint = namePart + padding + boolMessage(*Options[i].ControlledValue);
+                    }
+
+                    if (lineToPrint.length() >= CONSOLE_WIDTH) {
+                        lineToPrint = lineToPrint.substr(0, CONSOLE_WIDTH - 3) + "...";
+                    }
+                    cout << lineToPrint;
+                    if (lineToPrint.length() < CONSOLE_WIDTH) {
+                        cout << string(CONSOLE_WIDTH - lineToPrint.length(), ' ');
+                    }
+                    cout << endl;
                     SetColor(7);
                 }
+
+                if (Options.size() > MENU_HEIGHT) {
+                    cout << "--- " << (selectedOption + 1) << " / " << Options.size() << " ---   " << endl;
+                }
+
                 int key = _getch();
                 if (key == 224 || key == 0) {
                     key = _getch();

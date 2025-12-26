@@ -12,12 +12,13 @@ struct MenuOption {
 class MenuManager {
 private:
     string Title;
-    vector<MenuOption> Options;
+
     int selectedOption;
 
     string boolMessage(bool val);
 
 public:
+    vector<MenuOption> Options;
     MenuManager(string t);
 
     void AddOption(MenuOption option);
