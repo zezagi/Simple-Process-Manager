@@ -13,6 +13,16 @@
 
 using namespace std;
 
-void HandleProcessExplorer() {
-
+bool HandleProcessExplorer(DWORD pid) {
+    MenuManager ProcessExplorerMenu = MenuManager("[ PROCESS ]");
+    MenuOption ProcessInfo = {generateProcessString(pid), nullptr};
+    MenuOption options[] = {
+        {"Process info", nullptr},
+        {"Show and read memory", nullptr},
+        {"Kill Process", nullptr},
+        {"Back", nullptr}
+    };
+    ProcessExplorerMenu.AddOption(ProcessInfo);
+    for (auto option : options) ProcessExplorerMenu.AddOption(option);
+    ProcessExplorerMenu.Show();
 }

@@ -2,30 +2,28 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 struct MenuOption {
-    string Name;
+    std::string Name;
     bool* ControlledValue;
 };
 
 class MenuManager {
 private:
-    string Title;
+    std::string Title;
     int selectedOption;
 
 
-    string boolMessage(bool val);
+    std::string boolMessage(bool val);
 
 public:
-    vector<MenuOption> Options;
-    MenuManager(string t);
+    std::vector<MenuOption> Options;
+    MenuManager(std::string t);
     static int consoleWidth;
     static int consoleHeight;
     static void NewConsoleWidth(int val);
     static void NewConsoleHeight(int val);
 
-    int HandleInput(string message);
+    int HandleInput(std::string message);
 
     void AddOption(MenuOption option);
     int Show();

@@ -16,7 +16,7 @@
 using namespace std;
 
 int MenuManager::consoleWidth = 80;
-int MenuManager::consoleHeight = 30;
+int MenuManager::consoleHeight = 25;
 
 MenuManager::MenuManager(string t) : Title(t), selectedOption(0) {}
 
@@ -104,6 +104,9 @@ MenuManager::MenuManager(string t) : Title(t), selectedOption(0) {}
                 if (key==KEY_ENTER) {
                     if (Options[selectedOption].ControlledValue==nullptr) return selectedOption;
                     *Options[selectedOption].ControlledValue = !*Options[selectedOption].ControlledValue;
+                }
+                if (key==KEY_BACKSPACE) {
+                    return -1;
                 }
             }
         }

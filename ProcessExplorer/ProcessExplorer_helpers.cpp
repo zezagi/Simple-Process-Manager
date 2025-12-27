@@ -116,39 +116,70 @@ string generateProcessString(PROCESSENTRY32* entry, ProcessSettings* settings) {
 
     return ss.str();
 }
+string generateProcessString(DWORD pid) {
+    ProcessSettings allOn = {true, true, true, true, true, true, true};
 
-bool ShowAllProcesses(ProcessSettings* settings) {
-    EnableDebugPrivilege();
-    PROCESSENTRY32 entry;
     HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if (snapshot == INVALID_HANDLE_VALUE) return false;
+    if (snapshot == INVALID_HANDLE_VALUE) return "Error: Cannot access process list";
+
+    PROCESSENTRY32 entry;
     entry.dwSize = sizeof(PROCESSENTRY32);
 
-    string headerTitle = GetHeaderString(settings);
-    MenuManager ProcessListMenu(headerTitle);
-    vector<DWORD> pidMap;
+    string result = "Process not found or terminated";
 
     if (Process32First(snapshot, &entry)) {
         do {
-            string procLine = generateProcessString(&entry, settings);
-            ProcessListMenu.AddOption({procLine, nullptr});
-            pidMap.push_back(entry.th32ProcessID);
+            if (entry.th32ProcessID == pid) {
+                result = generateProcessString(&entry, &allOn);
+                break;
+            }
         } while (Process32Next(snapshot, &entry));
     }
-    else {
-        CloseHandle(snapshot);
-        return false;
-    }
+
     CloseHandle(snapshot);
+    return result;
+}
 
-    ProcessListMenu.AddOption({"[ BACK TO MAIN MENU ]", nullptr});
+bool ShowAllProcesses(ProcessSettings* settings) {
+        EnableDebugPrivilege();
+        PROCESSENTRY32 entry;
+        HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (snapshot == INVALID_HANDLE_VALUE) return false;
+        entry.dwSize = sizeof(PROCESSENTRY32);
 
-    int choice = ProcessListMenu.Show();
+        string headerTitle = GetHeaderString(settings);
+        MenuManager ProcessListMenu(headerTitle);
+        vector<DWORD> pidMap;
 
-    if (choice == ProcessListMenu.Options.size()-1) {
-        return false;
-    }
+        if (Process32First(snapshot, &entry)) {
+            do {
+                string procLine = generateProcessString(&entry, settings);
+                ProcessListMenu.AddOption({procLine, nullptr});
+                pidMap.push_back(entry.th32ProcessID);
+            } while (Process32Next(snapshot, &entry));
+        }
+        else {
+            CloseHandle(snapshot);
+            return false;
+        }
+        CloseHandle(snapshot);
 
-    SelectedPID = pidMap[choice];
-    return true;
+        ProcessListMenu.AddOption({"[ BACK TO MAIN MENU ]", nullptr});
+
+        int choice = ProcessListMenu.Show();
+
+        if (choice==-1)
+            return false;
+
+        if (choice == ProcessListMenu.Options.size()-1) {
+            return false;
+        }
+
+        SelectedPID = pidMap[choice];
+        if (HandleProcessExplorer(SelectedPID))
+            return false;
+
+
+        // true means explore processes + refresh, false means go back to main menu
+        return true;
 }

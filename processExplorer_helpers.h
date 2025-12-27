@@ -1,7 +1,10 @@
 #pragma once
 
 #include <string>
-using namespace std;
+#include "MenuManager/MenuManager.h"
+#include <windows.h>
+#include <tlhelp32.h>
+
 
 #define KEY_UP 72
 #define KEY_DOWN 80
@@ -20,8 +23,8 @@ struct ProcessSettings {
 
 struct ProcessInfo {
     int pid;
-    string name;
-    string path;
+    std::string name;
+    std::string path;
     int memUsage;
     int threads;
     int parentPID;
@@ -30,5 +33,7 @@ struct ProcessInfo {
 
 bool ShowAllProcesses(ProcessSettings* settings);
 bool SettingsSaved();
-void HandleProcessExplorer();
-string boolMessage(bool val);
+bool HandleProcessExplorer(DWORD pid);
+std::string generateProcessString(DWORD pid);
+std::string generateProcessString(PROCESSENTRY32* entry, ProcessSettings* settings);
+std::string boolMessage(bool val);

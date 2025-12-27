@@ -48,10 +48,12 @@ int main() {
                 ChangeConsoleSettings();
                 break;
             case 1:
-                if (SettingsSaved())
-                    if (ShowAllProcesses(&currentSettings)) {
-                        HandleProcessExplorer();
+                if (SettingsSaved()) {
+                    while (true) {
+                        if (!ShowAllProcesses(&currentSettings))
+                            break;
                     }
+                }
                     break;
             case 2: return 0;
             default: return 1;
