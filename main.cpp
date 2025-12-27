@@ -1,13 +1,4 @@
-#include <array>
-#include <iostream>
-#include <windows.h>
-#include <vector>
-#include <list>
-#include <tlhelp32.h>
-#include <iomanip>
-#include <conio.h>
 #include <string>
-#include <psapi.h>
 #include "processExplorer_helpers.h"
 #include "console_helpers.h"
 #include "MenuManager/MenuManager.h"
@@ -16,9 +7,11 @@ using namespace std;
 
 int ShowMenu() {
     MenuManager MainMenu("=======[ MENU ] =======");
-    MenuOption option {"Show all proecesses", nullptr};
+    MenuOption option0 {"Width: "+to_string(MenuManager::consoleWidth)+" Height: "+to_string(MenuManager::consoleHeight)+ " [ CHANGE ]", nullptr};
+    MenuOption option1 {"Show all proecesses", nullptr};
     MenuOption option2 {"Exit", nullptr};
-    MainMenu.AddOption(option);
+    MainMenu.AddOption(option0);
+    MainMenu.AddOption(option1);
     MainMenu.AddOption(option2);
     return MainMenu.Show();
 }
@@ -40,16 +33,27 @@ bool SettingsSaved() {
     return SettingsMenu.Show() == 0;
 }
 
+void ChangeConsoleSettings() {
+    MenuManager SettingsMenu("=======[ CONSOLE SETTINGS ] =======");
+    int newWidth = SettingsMenu.HandleInput("Set new console width");
+    int newHeight = SettingsMenu.HandleInput("Set new console height");
+    MenuManager::NewConsoleWidth(newWidth);
+    MenuManager::NewConsoleHeight(newHeight);
+}
+
 int main() {
     while (true) {
         switch (ShowMenu()) {
             case 0:
+                ChangeConsoleSettings();
+                break;
+            case 1:
                 if (SettingsSaved())
                     if (ShowAllProcesses(&currentSettings)) {
                         HandleProcessExplorer();
                     }
                     break;
-            case 1: return 0;
+            case 2: return 0;
             default: return 1;
         }
     }
