@@ -35,7 +35,6 @@ string GetMemoryUsage(DWORD pid) {
     CloseHandle(hProcess);
     return result;
 }
-
 string GetArch(DWORD pid) {
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
     if (!hProcess) return "-";
@@ -49,7 +48,6 @@ string GetArch(DWORD pid) {
     CloseHandle(hProcess);
     return "unk";
 }
-
 string GetProcessPath(DWORD pid) {
     if (pid == 0 || pid == 4) return "SYSTEM";
 
@@ -64,7 +62,6 @@ string GetProcessPath(DWORD pid) {
     CloseHandle(hProcess);
     return path;
 }
-
 string GetHeaderString(ProcessSettings* settings) {
     stringstream ss;
     if (settings->pid) ss << left << setw(8) << "PID";

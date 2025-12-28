@@ -37,3 +37,4 @@ bool HandleProcessExplorer(DWORD pid);
 std::string generateProcessString(DWORD pid);
 std::string generateProcessString(PROCESSENTRY32* entry, ProcessSettings* settings);
 std::string boolMessage(bool val);
+void PrintMemoryHex(DWORD pid);
