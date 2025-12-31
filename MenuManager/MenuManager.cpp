@@ -120,3 +120,7 @@ int MenuManager::HandleInput(string message) {
         return c;
     }
 }
+
+void MenuManager::changeSelected(int val) {
+    MenuManager::selectedOption = val;
+}

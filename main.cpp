@@ -2,6 +2,7 @@
 #include "processExplorer_helpers.h"
 #include "console_helpers.h"
 #include "MenuManager/MenuManager.h"
+#include <iostream>
 
 using namespace std;
 

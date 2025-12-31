@@ -140,6 +140,7 @@ string generateProcessString(DWORD pid) {
 bool ShowAllProcesses(ProcessSettings* settings) {
         EnableDebugPrivilege();
         PROCESSENTRY32 entry;
+        static int lastSelected;
         HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
         if (snapshot == INVALID_HANDLE_VALUE) return false;
         entry.dwSize = sizeof(PROCESSENTRY32);
@@ -162,7 +163,7 @@ bool ShowAllProcesses(ProcessSettings* settings) {
         CloseHandle(snapshot);
 
         ProcessListMenu.AddOption({"[ BACK TO MAIN MENU ]", nullptr});
-
+        ProcessListMenu.changeSelected(lastSelected);
         int choice = ProcessListMenu.Show();
 
         if (choice==-1)
@@ -173,9 +174,10 @@ bool ShowAllProcesses(ProcessSettings* settings) {
         }
 
         SelectedPID = pidMap[choice];
-        if (HandleProcessExplorer(SelectedPID))
+        if (HandleProcessExplorer(SelectedPID)) // == true, when bug?, ==  false when user wants to go back and explore processes
             return false;
 
+         lastSelected = choice;
 
         // true means explore processes + refresh, false means go back to main menu
         return true;

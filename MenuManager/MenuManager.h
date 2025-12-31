@@ -11,8 +11,6 @@ class MenuManager {
 private:
     std::string Title;
     int selectedOption;
-
-
     std::string boolMessage(bool val);
 
 public:
@@ -24,7 +22,7 @@ public:
     static void NewConsoleHeight(int val);
 
     int HandleInput(std::string message);
-
+    void changeSelected(int val);
     void AddOption(MenuOption option);
     int Show();
 };
